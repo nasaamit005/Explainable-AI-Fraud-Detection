@@ -1,0 +1,465 @@
+﻿
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="Stage 13 temporal fraud-model retraining experiment, evaluation metrics, precision-recall analysis, error analysis, and feature importance."
+  >
+  <meta name="robots" content="index,follow">
+  <title>Stage 13 — Fraud Model Retraining Experiment</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: #f3f7fd;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #526179;
+      --heading: #173b70;
+      --link: #175cd3;
+      --border: #d9e3f0;
+      --info-bg: #edf5ff;
+      --warning-bg: #fff7e6;
+      --warning-border: #d97706;
+      --shadow: 0 4px 16px rgba(25, 55, 100, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 28px 18px 48px;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 12px 2px 22px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: var(--heading);
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--heading);
+      font-size: 1.35rem;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    a {
+      color: var(--link);
+      text-underline-offset: 3px;
+      overflow-wrap: anywhere;
+    }
+
+    a:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    a:focus-visible {
+      outline: 3px solid #80b5ff;
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .metadata {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .metadata span {
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: 0.92rem;
+    }
+
+    section {
+      margin: 18px 0;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .analysis-card {
+      border-left: 4px solid #4c83d8;
+    }
+
+    .analysis-card p {
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .action-link {
+      display: inline-block;
+      padding: 9px 13px;
+      border: 1px solid #c6d8f4;
+      border-radius: 7px;
+      background: var(--info-bg);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .action-link:hover {
+      background: #e0edff;
+    }
+
+    .notice {
+      padding: 16px 18px;
+      border-radius: 8px;
+    }
+
+    .notice p:last-child {
+      margin-bottom: 0;
+    }
+
+    .notice-info {
+      border: 1px solid #b8d3f5;
+      background: var(--info-bg);
+    }
+
+    .notice-warning {
+      border: 1px solid #f0c36d;
+      border-left: 5px solid var(--warning-border);
+      background: var(--warning-bg);
+    }
+
+    .download-list li {
+      margin: 9px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    footer {
+      padding: 18px 2px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 18px 12px 32px;
+      }
+
+      section {
+        padding: 17px;
+      }
+
+      .actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .action-link {
+        text-align: center;
+      }
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: white;
+      }
+
+      section {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      a {
+        color: #173b70;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<main>
+  <header>
+    <h1>Stage 13 — Fraud Model Retraining Experiment</h1>
+
+    <p class="subtitle">
+      A chronological model-comparison experiment evaluating fraud detection
+      performance, precision–recall trade-offs, classification errors, and
+      model-specific feature importance.
+    </p>
+
+    <div class="metadata" aria-label="Experiment metadata">
+      <span><strong>Stage:</strong> 13</span>
+      <span><strong>Features:</strong> 29</span>
+      <span><strong>Split:</strong> Chronological 70/15/15</span>
+      <span><strong>Evaluation:</strong> Imbalanced classification</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="experiment-overview">
+    <h2 id="experiment-overview">Experiment overview</h2>
+
+    <p>
+      The experiment compares candidate fraud-detection models using a
+      chronological training, validation, and final-test design. Validation
+      data supports threshold selection; final-test metrics describe performance
+      on the designated later period.
+    </p>
+
+    <div class="notice notice-info">
+      <p>
+        <strong>Observed result:</strong> Random Forest achieved the highest
+        final-test average precision among the candidates in this experiment.
+        Logistic Regression achieved a higher ROC-AUC. These metrics measure
+        different aspects of ranking performance and should not be treated as
+        interchangeable.
+      </p>
+    </div>
+
+    <p class="muted">
+      The experiment uses a dataset with 29 input features. Confirm the source
+      dataset's provenance, licence, feature definitions, and feature
+      availability at prediction time before making research or deployment
+      claims.
+    </p>
+  </section>
+
+  <section class="analysis-card" aria-labelledby="pr-auc-heading">
+    <h2 id="pr-auc-heading">1. Final-Test Average Precision</h2>
+
+    <p>
+      Compare candidate models using average precision, a ranking metric
+      particularly informative for highly imbalanced fraud-detection data.
+      Interpret the result alongside the fraud prevalence and other evaluation
+      metrics.
+    </p>
+
+    <div class="actions">
+      <a class="action-link"
+         href="analysis_pages/01_final_test_pr_auc_analysis.html">
+        View Full Analysis
+      </a>
+      <a class="action-link" href="final_test_pr_auc.html">
+        Open Interactive Chart
+      </a>
+    </div>
+  </section>
+
+  <section class="analysis-card" aria-labelledby="precision-recall-heading">
+    <h2 id="precision-recall-heading">
+      2. Final-Test Precision–Recall Operating Trade-off
+    </h2>
+
+    <p>
+      Examine how precision and recall change across classification thresholds.
+      A threshold that increases fraud detection may also increase the number
+      of legitimate transactions flagged for investigation.
+    </p>
+
+    <div class="actions">
+      <a class="action-link"
+         href="analysis_pages/02_final_test_precision_recall_analysis.html">
+        View Full Analysis
+      </a>
+      <a class="action-link" href="final_test_precision_recall.html">
+        Open Interactive Chart
+      </a>
+    </div>
+  </section>
+
+  <section class="analysis-card" aria-labelledby="errors-heading">
+    <h2 id="errors-heading">
+      3. Final-Test False Positives and False Negatives
+    </h2>
+
+    <p>
+      Compare legitimate transactions incorrectly flagged as fraud with fraud
+      transactions missed by the model. The operational importance of each
+      error depends on investigation capacity, customer impact, and the cost
+      of undetected fraud.
+    </p>
+
+    <div class="actions">
+      <a class="action-link"
+         href="analysis_pages/03_final_test_errors_analysis.html">
+        View Full Analysis
+      </a>
+      <a class="action-link" href="final_test_errors.html">
+        Open Interactive Chart
+      </a>
+    </div>
+  </section>
+
+  <section class="analysis-card" aria-labelledby="importance-heading">
+    <h2 id="importance-heading">4. Model-Specific Feature Importance</h2>
+
+    <p>
+      Inspect which numeric inputs contribute most to the fitted candidate
+      models according to the importance method used. Feature importance is
+      model- and method-dependent; it does not by itself establish causality
+      or explain every individual prediction.
+    </p>
+
+    <div class="actions">
+      <a class="action-link"
+         href="analysis_pages/04_feature_importance_analysis.html">
+        View Full Analysis
+      </a>
+      <a class="action-link" href="feature_importance.html">
+        Open Interactive Chart
+      </a>
+    </div>
+  </section>
+
+  <section aria-labelledby="downloads-heading">
+    <h2 id="downloads-heading">Download aggregate outputs</h2>
+
+    <p>
+      The following links are intended for reviewed, non-record-level
+      experiment artifacts. Verify that each target is included in the
+      published website repository before release.
+    </p>
+
+    <ul class="download-list">
+      <li>
+        <a href="../../reports/stage13/stage13_results.xlsx">
+          Excel Results Workbook
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/stage13_manifest.json">
+          Run Manifest
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/tables/stage13_split_summary.csv">
+          Temporal Split Summary
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/tables/stage13_model_comparison.csv">
+          Aggregate Model Metrics
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/tables/stage13_threshold_selection.csv">
+          Validation Threshold Selection
+        </a>
+      </li>
+    </ul>
+
+    <div class="notice notice-warning">
+      <p>
+        <strong>Publication privacy:</strong> Record-level final-test
+        predictions are intentionally not linked here. Do not publish
+        transaction-level predictions, raw financial datasets, credentials,
+        API keys, or other sensitive artifacts. Review the workbook, manifest,
+        and every linked file before making them public.
+      </p>
+    </div>
+  </section>
+
+  <section aria-labelledby="limitations-heading">
+    <h2 id="limitations-heading">Important limitations and interpretation</h2>
+
+    <ul>
+      <li>
+        <strong>Dataset provenance:</strong> Confirm the source, licence,
+        permitted use, and appropriate attribution.
+      </li>
+      <li>
+        <strong>Temporal validity:</strong> Confirm timestamp semantics and
+        ensure that feature values would actually have been available when
+        each prediction was made.
+      </li>
+      <li>
+        <strong>Split boundaries:</strong> Check whether identical timestamps
+        cross the training, validation, and final-test boundaries. If they do,
+        assess whether a timestamp-grouped split is required and rerun the
+        experiment if necessary.
+      </li>
+      <li>
+        <strong>Threshold selection:</strong> Choose operational thresholds
+        using validation data and a documented decision criterion, not by
+        repeatedly optimizing final-test results.
+      </li>
+      <li>
+        <strong>Metric interpretation:</strong> Precision, recall, average
+        precision, ROC-AUC, calibration, and error counts answer different
+        questions. No single metric establishes overall deployment readiness.
+      </li>
+      <li>
+        <strong>Feature importance:</strong> Importance scores are not causal
+        evidence and may not explain an individual prediction.
+      </li>
+      <li>
+        <strong>Deployment:</strong> This is an experiment, not an approval to
+        deploy a candidate model. Operational validation, privacy review,
+        security checks, and monitoring remain necessary.
+      </li>
+    </ul>
+
+    <p>
+      The reported ranking is descriptive of this experiment's observed
+      results. Reusing the same final-test set to repeatedly select or tune
+      models weakens its role as an independent evaluation set.
+    </p>
+  </section>
+
+  <footer>
+    <p>
+      Stage 13 — Fraud Model Retraining Experiment.
+      Interpret findings in the context of the documented methodology,
+      data limitations, and evaluation design.
+    </p>
+  </footer>
+</main>
+</body>
+</html>

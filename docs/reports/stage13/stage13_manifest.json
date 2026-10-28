@@ -1,0 +1,69 @@
+﻿{
+    "stage":  13,
+    "title":  "Fraud Model Retraining Experiment and Temporal Holdout Evaluation",
+    "created_utc":  "2026-10-27T10:58:11.815298+00:00",
+    "source_file":  "data/raw/creditcard.csv",
+    "source_rows_after_time_filter":  284807,
+    "time_column":  "Time",
+    "target_column":  "Class",
+    "features":  [
+                     "V1",
+                     "V2",
+                     "V3",
+                     "V4",
+                     "V5",
+                     "V6",
+                     "V7",
+                     "V8",
+                     "V9",
+                     "V10",
+                     "V11",
+                     "V12",
+                     "V13",
+                     "V14",
+                     "V15",
+                     "V16",
+                     "V17",
+                     "V18",
+                     "V19",
+                     "V20",
+                     "V21",
+                     "V22",
+                     "V23",
+                     "V24",
+                     "V25",
+                     "V26",
+                     "V27",
+                     "V28",
+                     "Amount"
+                 ],
+    "split_fractions":  {
+                            "train":  0.7,
+                            "validation":  0.15,
+                            "test":  0.15
+                        },
+    "threshold_selection":  "F2 maximized on validation set only",
+    "candidate_models":  [
+                             "Logistic Regression",
+                             "Random Forest"
+                         ],
+    "best_observed_test_pr_auc_model":  "Random Forest",
+    "evaluation_note":  "Final-test ranking is descriptive. Do not reuse the final test for tuning or promotion decisions.",
+    "temporal_boundary_caveat":  "Repeated timestamps occur at split boundaries. Verify timestamp-group separation before claiming fully independent temporal validation.",
+    "release_status":  "DRAFT - pending final provenance, licence, privacy, security, and scientific validation review",
+    "outputs":  [
+                    "reports/stage13/stage13_manifest.json",
+                    "reports/stage13/tables/stage13_split_summary.csv",
+                    "reports/stage13/tables/stage13_model_comparison.csv",
+                    "reports/stage13/tables/stage13_threshold_selection.csv",
+                    "dashboard/stage13/stage13_dashboard.html",
+                    "reports/stage13/stage13_results.xlsx"
+                ],
+    "public_release_policy":  "Aggregate results only; do not publish record-level predictions or raw transaction data.",
+    "approved_aggregate_outputs":  [
+                                       "reports/stage13/stage13_results.xlsx",
+                                       "reports/stage13/tables/stage13_split_summary.csv",
+                                       "reports/stage13/tables/stage13_model_comparison.csv",
+                                       "reports/stage13/tables/stage13_threshold_selection.csv"
+                                   ]
+}

@@ -1,0 +1,305 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Stage 13: retrospective temporal evaluation of candidate fraud detection models, threshold trade-offs, classification errors, and feature importance.">
+  <title>Stage 13 | Fraud Model Retraining Experiment</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f3f7fd;
+      --surface: #ffffff;
+      --ink: #18263d;
+      --muted: #52627a;
+      --primary: #174ea6;
+      --border: #d7e2f0;
+      --info-bg: #edf5ff;
+      --warning-bg: #fff7e6;
+      --warning-border: #e6b450;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 20px 48px;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 30px;
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #ffffff, #eaf3ff);
+    }
+
+    h1, h2 { line-height: 1.3; }
+
+    h1 {
+      margin: 0 0 12px;
+      color: #173b70;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #173b70;
+      font-size: 1.25rem;
+    }
+
+    p { margin: 10px 0; }
+
+    .subtitle, .muted { color: var(--muted); }
+
+    .status {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 5px 11px;
+      border: 1px solid #b8d2f5;
+      border-radius: 999px;
+      background: var(--info-bg);
+      color: #174ea6;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    section {
+      min-width: 0;
+      padding: 24px;
+      margin: 18px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 3px 12px rgb(24 38 61 / 4%);
+    }
+
+    .grid section { margin: 0; }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 18px;
+    }
+
+    a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      overflow-wrap: anywhere;
+    }
+
+    a:hover { color: #0b3578; }
+
+    a:focus-visible {
+      outline: 3px solid #80b5ff;
+      outline-offset: 4px;
+      border-radius: 3px;
+    }
+
+    .notice {
+      border-left: 5px solid var(--warning-border);
+      background: var(--warning-bg);
+    }
+
+    .download-list {
+      padding-left: 22px;
+    }
+
+    .download-list li { margin: 9px 0; }
+
+    footer {
+      padding: 14px 4px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 18px 12px 32px; }
+      header, section { padding: 20px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<main>
+  <header>
+    <h1>Stage 13 — Fraud Model Retraining Experiment</h1>
+    <p class="subtitle">
+      Retrospective evaluation of candidate fraud-detection models using
+      chronological training, validation, and final-test partitions.
+    </p>
+    <span class="status">Research experiment — not a production deployment</span>
+  </header>
+
+  <section>
+    <h2>Experiment overview</h2>
+    <p><strong>Source file:</strong> <code>data\raw\creditcard.csv</code></p>
+    <p><strong>Features:</strong> 29</p>
+    <p><strong>Split design:</strong> chronological 70% / 15% / 15%</p>
+    <p>
+      <strong>Observed final-test average precision:</strong>
+      Random Forest ranked highest among the candidates in this experiment.
+    </p>
+    <p class="muted">
+      This is a descriptive result for the reported dataset and split. It does
+      not establish that the model will perform similarly on future transactions.
+    </p>
+  </section>
+
+  <section>
+    <h2>Stage 13 analysis dashboard</h2>
+    <p>
+      Open each interactive chart to explore the results, or use its dedicated
+      analysis page for methodology, interpretation, findings, and limitations.
+    </p>
+  </section>
+
+  <div class="grid">
+    <section>
+      <h2>1. Final Test — Average Precision</h2>
+      <p>
+        Compare candidate models using average precision, a useful summary
+        measure for precision–recall performance on an imbalanced dataset.
+      </p>
+      <div class="links">
+        <a href="analysis_pages/01_final_test_pr_auc_analysis.html">View Full Analysis</a>
+        <a href="final_test_pr_auc.html">Open Interactive Chart</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Precision–Recall Operating Trade-off</h2>
+      <p>
+        Explore how changing the alert threshold affects precision and recall.
+        Threshold choice should reflect the operational costs of missed fraud
+        and false alerts.
+      </p>
+      <div class="links">
+        <a href="analysis_pages/02_final_test_precision_recall_analysis.html">View Full Analysis</a>
+        <a href="final_test_precision_recall.html">Open Interactive Chart</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. False Positives and False Negatives</h2>
+      <p>
+        Examine the trade-off between fraud cases missed by the model and
+        legitimate transactions incorrectly flagged for review.
+      </p>
+      <div class="links">
+        <a href="analysis_pages/03_final_test_errors_analysis.html">View Full Analysis</a>
+        <a href="final_test_errors.html">Open Interactive Chart</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Model-Specific Feature Importance</h2>
+      <p>
+        Inspect the relative importance assigned to numeric inputs by the
+        fitted candidate models. Feature importance is not, by itself, proof
+        of causality or a complete explanation of an individual prediction.
+      </p>
+      <div class="links">
+        <a href="analysis_pages/04_feature_importance_analysis.html">View Full Analysis</a>
+        <a href="feature_importance.html">Open Interactive Chart</a>
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Download aggregate research outputs</h2>
+    <p>
+      These links provide summary results and experiment documentation.
+      Record-level final-test predictions are intentionally not linked here.
+    </p>
+    <ul class="download-list">
+      <li>
+        <a href="../../reports/stage13/stage13_results.xlsx">
+          Excel Results Workbook
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/stage13_manifest.json">
+          Run Manifest
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/tables/stage13_split_summary.csv">
+          Temporal Split Summary
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/tables/stage13_model_comparison.csv">
+          Aggregate Model Metrics
+        </a>
+      </li>
+      <li>
+        <a href="../../reports/stage13/tables/stage13_threshold_selection.csv">
+          Validation Threshold Sweep
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="notice">
+    <h2>Important methodological limitations</h2>
+    <ul>
+      <li>
+        <strong>Retrospective comparison:</strong> the final-test results have
+        been examined for this report. Do not continue to describe this test
+        set as untouched or repeatedly use it to tune and select models.
+      </li>
+      <li>
+        <strong>Temporal validity:</strong> verify the source timestamps,
+        timestamp ties at split boundaries, and whether features would have
+        been available at the actual prediction time.
+      </li>
+      <li>
+        <strong>Data provenance:</strong> verify dataset origin, licence,
+        permitted redistribution, and attribution requirements before release.
+      </li>
+      <li>
+        <strong>Operational validation:</strong> confirm performance on
+        genuinely future data, monitor calibration and alert volume, and assess
+        review capacity before considering deployment.
+      </li>
+      <li>
+        <strong>Interpretation:</strong> performance metrics and feature
+        importance do not alone establish fairness, causal relationships,
+        explainability, or production readiness.
+      </li>
+    </ul>
+    <p><strong>No model is automatically deployed by this experiment.</strong></p>
+  </section>
+
+  <footer>
+    Stage 13 — Fraud Model Retraining Experiment.
+    Interpret results in the context of the documented data, split design,
+    model assumptions, and limitations.
+  </footer>
+</main>
+</body>
+</html>
