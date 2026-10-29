@@ -1,0 +1,27 @@
+﻿{
+    "stage":  13,
+    "title":  "Fraud Model Retraining Experiment and Temporal Holdout Evaluation",
+    "models":  [
+                   "Logistic Regression",
+                   "Random Forest"
+               ],
+    "source_dataset_description":  "Credit-card fraud benchmark dataset",
+    "source_rows_after_time_filter":  284807,
+    "feature_count":  29,
+    "split_fractions":  {
+                            "train":  0.7,
+                            "validation":  0.15,
+                            "test":  0.15
+                        },
+    "retrospective_test_pr_auc_comparison_leader":  "Random Forest",
+    "model_selection_policy":  "Threshold selection uses validation data only. Do not use held-out test metrics repeatedly for tuning or promotion decisions.",
+    "important_caveat":  "Repeated timestamps occur at split boundaries. Timestamp-group separation must be verified before claiming fully independent temporal validation. Final-test results do not establish future or production performance.",
+    "publication_note":  "Aggregate research outputs only. Record-level test predictions and transaction-level explainability artifacts are excluded from the public release.",
+    "public_aggregate_outputs":  [
+                                     "stage13_split_summary.csv",
+                                     "stage13_model_comparison.csv",
+                                     "stage13_threshold_selection.csv",
+                                     "stage13_results.xlsx"
+                                 ],
+    "release_status":  "DRAFT - pending artifact, provenance, license, privacy, and security review"
+}
